@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Poll;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PollController extends Controller
 {
@@ -12,9 +13,15 @@ class PollController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct()
+    {
+        $this->middleware('auth')->except('welcome');
+    }
+
     public function index()
     {
-        //
+        $polls = Poll::all();
+        return view('/polls/index', compact('polls'));
     }
 
     /**
@@ -24,7 +31,11 @@ class PollController extends Controller
      */
     public function create()
     {
-        //
+   
+        $user = auth()->user();
+        $user_id = $user->id;
+        return view('polls/create', compact('user_id'));
+        
     }
 
     /**
@@ -35,7 +46,17 @@ class PollController extends Controller
      */
     public function store(Request $request)
     {
-        //
+       // dd($request->all());
+      
+  
+       $poll = new Poll;
+       $poll->title = $request->title;
+       $poll->user_id = Auth::id();
+       $poll->text = $request->text;
+       $poll->save();
+       
+
+        return redirect(action('PollController@index'));
     }
 
     /**
@@ -44,9 +65,11 @@ class PollController extends Controller
      * @param  \App\Poll  $poll
      * @return \Illuminate\Http\Response
      */
-    public function show(Poll $poll)
+    public function show($id)
     {
-        //
+        $poll = Poll::findOrFail($id);
+
+        return view('/polls/show', compact('poll'));
     }
 
     /**
@@ -55,9 +78,11 @@ class PollController extends Controller
      * @param  \App\Poll  $poll
      * @return \Illuminate\Http\Response
      */
-    public function edit(Poll $poll)
+    public function edit($id)
     {
-        //
+        $poll = Poll::findOrFail($id);
+    
+        return view('/polls/edit', compact(['poll']));
     }
 
     /**
@@ -67,9 +92,12 @@ class PollController extends Controller
      * @param  \App\Poll  $poll
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Poll $poll)
+    public function update(Request $request, $id)
     {
-        //
+        $poll = Poll::findOrFail($id);
+        $poll = $poll->update($request->all());
+
+        return redirect(action('PollController@index'));
     }
 
     /**
@@ -78,8 +106,10 @@ class PollController extends Controller
      * @param  \App\Poll  $poll
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Poll $poll)
+    public function destroy($id)
     {
-        //
+        $poll = Poll::findOrFail($id);
+        $poll->delete();
+        return redirect('/polls');
     }
 }
