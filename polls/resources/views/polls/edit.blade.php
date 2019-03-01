@@ -13,10 +13,15 @@
         <label for="description">Text: </label>
           <textarea class="form-control" name="text" id="" rows="3"> {{ old('text', $poll->text) }} </textarea>
       </div>
-      <div class="options">
-          <p></p>
+      <div class="options">          
+          
+          @foreach ($poll->options as $option)
+              <input type="text" value="{{$option->option}}" name="option[{{$option->id}}]">
+          @endforeach
+                  
       </div>
        <button type="submit" class="btn btn-primary">Submit</button>
+      
      </form>
    
 

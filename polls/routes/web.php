@@ -16,6 +16,7 @@ Route::get('/', function () {
 });
 
 Route::resource('/poll', 'PollController');
+Route::post('/poll/vote', 'OptionController@vote');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');

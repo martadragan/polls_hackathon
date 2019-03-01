@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-<button><a href="{{ action('PollController@create')}}">CREATE</a></button>
-
 
 @section('content')
     
@@ -10,13 +8,19 @@
 
 @foreach ($polls as $poll)
 
-<h2>Title: {{ $poll->title }}</h2>
-<br>
-<h3>Description: {{ $poll->text }}</h2>
+{{-- <h3>{{ $poll->title }}</h3>
+<br> --}}
+<h3><a href="{{ action('PollController@show', $poll->id)}}">{{ $poll->text }}</a></h3>
 <br>
 
-    <button><a href="{{ action('PollController@show', $poll->id)}}">DETAILS</a></button>
-<hr>
+  
+    @if ($poll->user_id == Auth::id())
+    <button><a href="{{ action('PollController@edit', $poll->id)}}">Edit</a></button>
+    <hr>
+    <br>
+    <br>
+    
+    @endif
 @endforeach
 
 @endsection

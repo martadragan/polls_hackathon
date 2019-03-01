@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Poll;
+use App\Option;
+use App\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,12 +50,25 @@ class PollController extends Controller
     {
        // dd($request->all());
       
+       
   
        $poll = new Poll;
        $poll->title = $request->title;
        $poll->user_id = Auth::id();
        $poll->text = $request->text;
        $poll->save();
+
+       $option_texts = $request->input('option', []);
+       
+       foreach ($option_texts as $nr => $option) {
+           $option_object = new Option;
+           $option_object->option = $option;
+           $option_object->poll_id = $poll->id;
+           $option_object->save();
+           
+       }
+
+
        
 
         return redirect(action('PollController@index'));
@@ -68,8 +83,12 @@ class PollController extends Controller
     public function show($id)
     {
         $poll = Poll::findOrFail($id);
+        $isVoted = Vote::where([
+            ['user_id', '=', \Auth::id()],
+            ['poll_id', '=', $id]
+        ])->count();
 
-        return view('/polls/show', compact('poll'));
+        return view('/polls/show', compact(['poll', 'isVoted']));
     }
 
     /**
@@ -95,7 +114,20 @@ class PollController extends Controller
     public function update(Request $request, $id)
     {
         $poll = Poll::findOrFail($id);
-        $poll = $poll->update($request->all());
+        $poll->update($request->only([
+            'title',
+            'text'
+        ]));
+
+        $option_texts = $request->input('option', []);
+       
+       foreach ($option_texts as $option_id => $option) {
+           $option_object = Option::find($option_id);
+           $option_object->option = $option;
+           $option_object->poll_id = $poll->id;
+           $option_object->save();
+           
+       }
 
         return redirect(action('PollController@index'));
     }
