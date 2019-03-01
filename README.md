@@ -1,2 +1,0 @@
-# polls_hackathon
-hackathon 
